@@ -1,5 +1,5 @@
 # How to install:
-Download this and download [nearest postal script](https://github.com/DevBlocky/nearest-postal/releases) then rename the nearest postal script from nearest-postal to nearest_postal and then write:
+Download this and download my fork of the [nearest postal script](https://github.com/Andyyy7666/nearest_postal) then write:
 
 start nearest_postal
 
