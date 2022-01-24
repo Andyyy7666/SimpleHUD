@@ -64,7 +64,9 @@ Citizen.CreateThread(function()
             crossingRoad =  " ~c~/ " .. config.streetNames[crossingRoad]
         end
         zoneName = GetLabelText(zone)
-        postal = exports[config.postalDisplay.resourceName]:getPostal()
+        if config.postalDisplay.enabled then
+            postal = exports[config.postalDisplay.resourceName]:getPostal()
+        end
         compass = getHeading(GetEntityHeading(ped))
     end
 end)
@@ -74,7 +76,9 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
         text("~c~" .. time() .. " ~s~" .. config.zoneNames[zoneName], config.timeDisplay.scale, config.timeDisplay.x, config.timeDisplay.y)
         text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName .. crossingRoad, config.compassDisplay.scale, config.compassDisplay.x, config.compassDisplay.y)
-        text("~s~Nearby Postal: ~c~" .. postal, config.postalDisplay.scale, config.postalDisplay.x, config.postalDisplay.y)
+        if config.postalDisplay.enabled then
+            text("~s~Nearby Postal: ~c~" .. postal, config.postalDisplay.scale, config.postalDisplay.x, config.postalDisplay.y)
+        end
     end
 end)
 
