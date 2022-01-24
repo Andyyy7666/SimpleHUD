@@ -1,11 +1,7 @@
 # How to install:
-Download this and download my fork of the [nearest postal script](https://github.com/Andyyy7666/nearest_postal) then write:
+If you're using the nearest postal script and want to use it with this then you can enable it in the cfg.
 
-start nearest_postal
-
-start SimpleHUD
-
-in your server.cfg file.
+write `start SimpleHUD` in your server.cfg file.
 
 Note: If you're using mumble voip or any other voice chat that you can change the distance then hide that hud and use this if you don't want to then you can disable this.
 
