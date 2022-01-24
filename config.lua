@@ -6,6 +6,7 @@ config = {
     },
 
     postalDisplay = {
+        enabled = false,
         resourceName = "nearest-postal",
         scale = 0.40,
         x = 0.182,
