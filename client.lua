@@ -8,42 +8,7 @@
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 
--- voice range script
-local InputWhisper = false
-local InputNormal = true
-local InputShouting = false
-local isTalking = false
-local CurrentDistance = config.voiceRange.NormalDistance
-local ToggleHUD = true
-
--- Compass function
-function getHeading(heading)
-    if ((heading >= 0 and heading < 45) or (heading >= 315 and heading < 360)) then
-        return "N" -- North
-    elseif (heading >= 45 and heading < 135) then
-        return "W" -- West
-    elseif (heading >= 135 and heading < 225) then
-        return "S" -- South
-    elseif (heading >= 225 and heading < 315) then
-        return "E" -- East
-    end
-end
-
--- Time function
-function time()
-    hour = GetClockHours()
-    minute = GetClockMinutes()
-    if hour <= 9 then
-        hour = "0" .. hour
-    end
-    if minute <= 9 then
-        minute = "0" .. minute
-    end
-    return "~c~" .. hour .. ":" .. minute .. " ~s~"
-end
-
--- Text function
-function InputText(text, scale, x, y)
+function text(text, scale, x, y)
     SetTextFont(4)
     SetTextProportional(0)
     SetTextScale(scale, scale)
@@ -56,98 +21,131 @@ function InputText(text, scale, x, y)
     DrawText(x, y)
 end
 
--- command
-RegisterCommand("togglehud", function(source, args, rawCommand)
-    if ToggleHUD == true then
-        ToggleHUD = false
-    else
-        ToggleHUD = true
+function getHeading(heading)
+    if ((heading >= 0 and heading < 45) or (heading >= 315 and heading < 360)) then
+        return "N" -- North
+    elseif (heading >= 45 and heading < 135) then
+        return "W" -- West
+    elseif (heading >= 135 and heading < 225) then
+        return "S" -- South
+    elseif (heading >= 225 and heading < 315) then
+        return "E" -- East
     end
-end, false)
+end
 
--- command help
-TriggerEvent('chat:addSuggestion', '/togglehud', 'toggle location hud')
+function time()
+    hour = GetClockHours()
+    minute = GetClockMinutes()
+    if hour <= 9 then
+        hour = "0" .. hour
+    end
+    if minute <= 9 then
+        minute = "0" .. minute
+    end
+    return hour .. ":" .. minute
+end
 
--- Area and time display.
+local zoneName = "San Andreas"
+local streetName = "San Andreas"
+local crossingRoad = "San Andreas"
+local postal = "000"
+local compass = "N"
+
 Citizen.CreateThread(function()
-    local zones = { ['AIRP'] = "LSIA", ['ALAMO'] = "Alamo Sea", ['ALTA'] = "Alta", ['ARMYB'] = "Fort Zancudo", ['BANHAMC'] = "Banham Canyon Dr", ['BANNING'] = "Banning", ['BEACH'] = "Vespucci Beach", ['BHAMCA'] = "Banham Canyon", ['BRADP'] = "Braddock Pass", ['BRADT'] = "Braddock Tunnel", ['BURTON'] = "Burton", ['CALAFB'] = "Calafia Bridge", ['CANNY'] = "Raton Canyon", ['CCREAK'] = "Cassidy Creek", ['CHAMH'] = "Chamberlain Hills", ['CHIL'] = "Vinewood Hills", ['CHU'] = "Chumash", ['CMSW'] = "Chiliad Mountain State Wilderness", ['CYPRE'] = "Cypress Flats", ['DAVIS'] = "Davis", ['DELBE'] = "Del Perro Beach", ['DELPE'] = "Del Perro", ['DELSOL'] = "La Puerta", ['DESRT'] = "Grand Senora Desert", ['DOWNT'] = "Downtown", ['DTVINE'] = "Downtown Vinewood", ['EAST_V'] = "East Vinewood", ['EBURO'] = "El Burro Heights", ['ELGORL'] = "El Gordo Lighthouse", ['ELYSIAN'] = "Elysian Island", ['GALFISH'] = "Galilee", ['GALLI'] = "Galileo Park", ['GOLF'] = "GWC and Golfing Society", ['GRAPES'] = "Grapeseed", ['GREATC'] = "Great Chaparral", ['HARMO'] = "Harmony", ['HAWICK'] = "Hawick", ['HORS'] = "Vinewood Racetrack", ['HUMLAB'] = "Humane Labs and Research", ['JAIL'] = "Bolingbroke Penitentiary", ['KOREAT'] = "Little Seoul", ['LACT'] = "Land Act Reservoir", ['LAGO'] = "Lago Zancudo", ['LDAM'] = "Land Act Dam", ['LEGSQU'] = "Legion Square", ['LMESA'] = "La Mesa", ['LOSPUER'] = "La Puerta", ['MIRR'] = "Mirror Park", ['MORN'] = "Morningwood", ['MOVIE'] = "Richards Majestic", ['MTCHIL'] = "Mount Chiliad", ['MTGORDO'] = "Mount Gordo", ['MTJOSE'] = "Mount Josiah", ['MURRI'] = "Murrieta Heights", ['NCHU'] = "North Chumash", ['NOOSE'] = "N.O.O.S.E", ['OBSERV'] = "Galileo Observatory", ['OCEANA'] = "Pacific Ocean", ['PALCOV'] = "Paleto Cove", ['PALETO'] = "Paleto Bay", ['PALFOR'] = "Paleto Forest", ['PALHIGH'] = "Palomino Highlands", ['PALMPOW'] = "Palmer-Taylor Power Station", ['PBLUFF'] = "Pacific Bluffs", ['PBOX'] = "Pillbox Hill", ['PROCOB'] = "Procopio Beach", ['RANCHO'] = "Rancho", ['RGLEN'] = "Richman Glen", ['RICHM'] = "Richman", ['ROCKF'] = "Rockford Hills", ['RTRAK'] = "Redwood Lights Track", ['SANAND'] = "San Andreas", ['SANCHIA'] = "San Chianski Mountain Range", ['SANDY'] = "Sandy Shores", ['SKID'] = "Mission Row", ['SLAB'] = "Stab City", ['STAD'] = "Maze Bank Arena", ['STRAW'] = "Strawberry", ['TATAMO'] = "Tataviam Mountains", ['TERMINA'] = "Terminal", ['TEXTI'] = "Textile City", ['TONGVAH'] = "Tongva Hills", ['TONGVAV'] = "Tongva Valley", ['VCANA'] = "Vespucci Canals", ['VESP'] = "Vespucci", ['VINE'] = "Vinewood", ['WINDF'] = "Ron Alternates Wind Farm", ['WVINE'] = "West Vinewood", ['ZANCUDO'] = "Zancudo River", ['ZP_ORT'] = "Port of South Los Santos", ['ZQ_UAR'] = "Davis Quartz" }
     while true do
-        if ToggleHUD then
-            ped = PlayerPedId()
-            playerCoords = GetEntityCoords(ped)
-            AreaDisplay = zones[GetNameOfZone(playerCoords.x, playerCoords.y, playerCoords.z)]
-            streetName = GetStreetNameFromHashKey(GetStreetNameAtCoord(playerCoords.x, playerCoords.y, playerCoords.z))
-            compass = getHeading(GetEntityHeading(ped))
-            isTalking = NetworkIsPlayerTalking(PlayerId())
-            postal = exports.nearest_postal:getPostal()
-            
-            if AreaDisplay == nil then
-                AreaDisplay = "San Andreas"
-            end
+        Citizen.Wait(100)
+        local ped = PlayerPedId()
+        local coords = GetEntityCoords(ped)
+        local zone = GetNameOfZone(coords.x, coords.y, coords.z)
+        streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+        streetName = config.streetNames[GetStreetNameFromHashKey(streetName)]
+        crossingRoad = GetStreetNameFromHashKey(crossingRoad)
+        if crossingRoad ~= "" then
+            crossingRoad =  " ~c~/ " .. config.streetNames[crossingRoad]
         end
-        Citizen.Wait(800)
+        zoneName = GetLabelText(zone)
+        postal = exports[config.postalDisplay.resourceName]:getPostal()
+        compass = getHeading(GetEntityHeading(ped))
     end
 end)
 
--- change voice
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(5)
-        if config.voiceRange.enableVoiceRange and ToggleHUD then
-            if IsControlJustPressed(0, config.voiceRange.Keybind) then
-                if InputWhisper == true then
-                    --MumbleSetAudioInputDistance(config.voiceRange.NormalDistance)
-                    CurrentDistance = config.voiceRange.NormalDistance
-                    InputWhisper = false
-                    InputNormal = true
-                    InputShouting = false
-                elseif InputNormal == true then
-                    --MumbleSetAudioInputDistance(config.voiceRange.ShoutingDistance)
-                    CurrentDistance = config.voiceRange.ShoutingDistance
-                    InputWhisper = false 
-                    InputNormal = false
-                    InputShouting = true
-                elseif InputShouting == true then
-                    --MumbleSetAudioInputDistance(config.voiceRange.WhisperDistance)
-                    CurrentDistance = config.voiceRange.WhisperDistance
-                    InputWhisper = true
-                    InputNormal = false
-                    InputShouting = false
-                end
-            end
-        end
-    end
-end)
-
--- hud
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-        if ToggleHUD then
-            InputText(time() .. AreaDisplay, config.display.TimeScale, config.display.TimeLocationX, config.display.TimeLocationY)
-            InputText("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName, config.display.CompassStreetnameScale, config.display.CompassStreetnameLocationX, config.display.CompassStreetnameLocationY)
-            InputText('~s~Nearby Postal: ~c~' .. postal, config.display.PostalScale, config.display.PostalLocationX, config.display.PostalLocationY)
-
-            if config.voiceRange.enableVoiceRange then
-                if InputWhisper == true and isTalking == false then
-                    InputText("🔈", config.voiceRange.scale, config.voiceRange.x, config.voiceRange.y)
-                elseif InputNormal == true and isTalking == false then
-                    InputText("🔉", config.voiceRange.scale, config.voiceRange.x, config.voiceRange.y)
-                elseif InputShouting == true and isTalking == false then
-                    InputText("🔊", config.voiceRange.scale, config.voiceRange.x, config.voiceRange.y)
-                elseif InputWhisper == true and isTalking == true then
-                    InputText("🔈", config.voiceRange.scale / 1.2, config.voiceRange.x, config.voiceRange.y)
-                elseif InputNormal == true and isTalking == true then
-                    InputText("🔉", config.voiceRange.scale / 1.2, config.voiceRange.x, config.voiceRange.y)
-                elseif InputShouting == true and isTalking == true then
-                    InputText("🔊", config.voiceRange.scale / 1.2, config.voiceRange.x, config.voiceRange.y)
-                end
-        
-                if config.voiceRange.enableBlueCirlce and IsControlPressed(1, config.voiceRange.Keybind) then
-                    local pedCoords = GetEntityCoords(PlayerPedId())
-                    DrawMarker(1, pedCoords.x, pedCoords.y, pedCoords.z - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, CurrentDistance * 2.0, CurrentDistance * 2.0, 1.0, 40, 140, 255, 150, false, false, 2, false, nil, nil, false)
-                end
-            end
-        end
+        text("~c~" .. time() .. " ~s~" .. config.zoneNames[zoneName], config.timeDisplay.scale, config.timeDisplay.x, config.timeDisplay.y)
+        text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName .. crossingRoad, config.compassDisplay.scale, config.compassDisplay.x, config.compassDisplay.y)
+        text("~s~Nearby Postal: ~c~" .. postal, config.postalDisplay.scale, config.postalDisplay.x, config.postalDisplay.y)
     end
 end)
+
+-- Voice Range
+if config.voiceRangeDisplay.enabled then
+    local keybindUsed = false
+    local isTalking = false
+    local CurrentChosenDistance = 2
+    local CurrentDistanceValue = config.voiceRangeDisplay.ranges[CurrentChosenDistance].distance
+    local CurrentDistanceName = config.voiceRangeDisplay.ranges[CurrentChosenDistance].name
+
+    if config.voiceRangeDisplay.customKeybind then
+        RegisterCommand("+voiceDistance", function()
+            keybindUsed = true
+            keybindUsed = false
+        end, false)
+        RegisterCommand("-voiceDistance", function()
+            keybindUsed = false
+        end, false)
+        RegisterKeyMapping("+voiceDistance", "Change Voice Proximity", "keyboard", "z")
+    end
+
+    -- Check if player is speaking
+    if config.voiceRangeDisplay.makeHudSmallerWhileSpeaking then
+        Citizen.CreateThread(function()
+            while true do
+                Citizen.Wait(50)
+                if NetworkIsPlayerTalking(PlayerId()) then
+                    isTalking = true
+                else
+                    isTalking = false
+                end
+            end
+        end)
+    end
+
+    Citizen.CreateThread(function()
+        while true do
+            Citizen.Wait(0)
+
+            -- change voice
+            if IsControlJustPressed(0, config.voiceRangeDisplay.keybind) or keybindUsed then
+                if CurrentChosenDistance == #config.voiceRangeDisplay.ranges then
+                    CurrentChosenDistance = 1
+                else
+                    CurrentChosenDistance = CurrentChosenDistance + 1
+                end
+                CurrentDistanceValue = config.voiceRangeDisplay.ranges[CurrentChosenDistance].distance
+                CurrentDistanceName = config.voiceRangeDisplay.ranges[CurrentChosenDistance].name
+                if config.voiceRangeDisplay.changeSpeakingDistance then
+                    MumbleSetAudioInputDistance(CurrentDistanceValue)
+                end
+                if config.voiceRangeDisplay.changeHearingDistance then
+                    MumbleSetAudioOutputDistance(CurrentDistanceValue)
+                end
+            end
+
+            -- Blue circle
+            if config.voiceRangeDisplay.enableBlueCircle then
+                if IsControlPressed(1, config.voiceRangeDisplay.keybind) or keybindUsed then
+                    local pedCoords = GetEntityCoords(PlayerPedId())
+                    DrawMarker(1, pedCoords.x, pedCoords.y, pedCoords.z - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, CurrentDistanceValue * 2.0, CurrentDistanceValue * 2.0, 1.0, 40, 140, 255, 150, false, false, 2, false, nil, nil, false)
+                end
+            end
+
+            -- HUD
+            if config.voiceRangeDisplay.makeHudSmallerWhileSpeaking and isTalking then
+                text(CurrentDistanceName, config.voiceRangeDisplay.scale / 1.2, config.voiceRangeDisplay.x, config.voiceRangeDisplay.y)
+            else
+                text(CurrentDistanceName, config.voiceRangeDisplay.scale, config.voiceRangeDisplay.x, config.voiceRangeDisplay.y)
+            end
+        end
+    end)
+end
