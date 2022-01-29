@@ -6,7 +6,7 @@ config = {
     },
 
     postalDisplay = {
-        enabled = false,
+        enabled = true,
         resourceName = "nearest-postal",
         scale = 0.40,
         x = 0.182,
@@ -28,7 +28,7 @@ config = {
         scale = 0.30,
     
         keybind = 20, -- https://docs.fivem.net/docs/game-references/controls/
-        customKeybind = true, -- if you enable this then players can bind the key through their settings and not the Keybind above.
+        customKeybind = true, -- if you enable this then players can bind the key through their settings and not the keybind above.
     
         enableBlueCircle = true, -- this will enable the blue circle to show you the distance you're voice can reach.
         makeHudSmallerWhileSpeaking = true, -- This will make the hud a little bit smaller when you're speaking.
@@ -114,6 +114,7 @@ config = {
         ["Heritage Way"] = "Heritage Way",
         ["Rub St"] = "Rub St",
         ["Mt Haan Rd"] = "Mt Haan Rd",
+        ["Mt Haan Dr"] = "Mt Haan Dr",
         ["West Galileo Ave"] = "West Galileo Ave",
         ["Covenant Ave"] = "Covenant Ave",
         ["Tongva Dr"] = "Tongva Dr",
@@ -263,6 +264,10 @@ config = {
     },
 
     zoneNames = { -- If you'd like to change the zone names you can do that here.
+        ["Cassidy Creek"] = "Cassidy Creek",
+        ["Galileo Observatory"] = "Galileo Observatory",
+        ["Braddock Tunnel"] = "Braddock Tunnel",
+        ["Galileo Park"] = "Galileo Park",
         ["North Chumash"] = "North Chumash",
         ["Redwood Lights Track"] = "Redwood Lights Track",
         ["Rancho"] = "Rancho",
