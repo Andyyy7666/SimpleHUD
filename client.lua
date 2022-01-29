@@ -45,11 +45,11 @@ function time()
     return hour .. ":" .. minute
 end
 
-local zoneName = "San Andreas"
-local streetName = "San Andreas"
-local crossingRoad = "San Andreas"
-local postal = "000"
-local compass = "N"
+local zoneName = ""
+local streetName = ""
+local crossingRoad = ""
+local postal = ""
+local compass = ""
 
 Citizen.CreateThread(function()
     while true do
@@ -58,12 +58,27 @@ Citizen.CreateThread(function()
         local coords = GetEntityCoords(ped)
         local zone = GetNameOfZone(coords.x, coords.y, coords.z)
         streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-        streetName = config.streetNames[GetStreetNameFromHashKey(streetName)]
+        streetName = GetStreetNameFromHashKey(streetName)
         crossingRoad = GetStreetNameFromHashKey(crossingRoad)
-        if crossingRoad ~= "" then
-            crossingRoad =  " ~c~/ " .. config.streetNames[crossingRoad]
-        end
         zoneName = GetLabelText(zone)
+        if config.streetNames[streetName] then
+            streetName = config.streetNames[streetName]
+        else
+            print("[^1WARNING^0] street name: ^3" .. streetName .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
+        end
+        if config.streetNames[crossingRoad] then
+            crossingRoad =  " ~c~/ " .. config.streetNames[crossingRoad]
+        elseif crossingRoad == "" then
+            crossingRoad = crossingRoad
+        else
+            print("[^1WARNING^0] crossing road: ^3" .. crossingRoad .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
+            crossingRoad =  " ~c~/ " .. crossingRoad
+        end
+        if config.zoneNames[GetLabelText(zone)] then
+            zoneName = config.zoneNames[GetLabelText(zone)]
+        else
+            print("[^1WARNING^0] zone name: ^3" .. zoneName .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
+        end
         if config.postalDisplay.enabled then
             postal = exports[config.postalDisplay.resourceName]:getPostal()
         end
@@ -74,7 +89,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-        text("~c~" .. time() .. " ~s~" .. config.zoneNames[zoneName], config.timeDisplay.scale, config.timeDisplay.x, config.timeDisplay.y)
+        text("~c~" .. time() .. " ~s~" .. zoneName, config.timeDisplay.scale, config.timeDisplay.x, config.timeDisplay.y)
         text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName .. crossingRoad, config.compassDisplay.scale, config.compassDisplay.x, config.compassDisplay.y)
         if config.postalDisplay.enabled then
             text("~s~Nearby Postal: ~c~" .. postal, config.postalDisplay.scale, config.postalDisplay.x, config.postalDisplay.y)
