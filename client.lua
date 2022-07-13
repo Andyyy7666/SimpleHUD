@@ -1,21 +1,29 @@
-------------------------------------------------------------------------
-------------------------------------------------------------------------
---			DO NOT EDIT IF YOU DON'T KNOW WHAT YOU'RE DOING 		  --
---                                                                    --
---               Changes should be made in Config.lua                 --
---     							 									  --
---	   For support join my discord: https://discord.gg/Z9Mxu72zZ6	  --
-------------------------------------------------------------------------
-------------------------------------------------------------------------
+-- For support join my discord: https://discord.gg/Z9Mxu72zZ6
 
-function text(text, scale, x, y)
-    SetTextFont(4)
+local priorityText = ""
+local aopText = ""
+local zoneName = ""
+local streetName = ""
+local crossingRoad = ""
+local postal = ""
+local compass = ""
+local time = ""
+local hidden = false
+local cash = ""
+local bank = ""
+
+function getAOP()
+    return aopText
+end
+
+function text(text, x, y, scale, font)
+    SetTextFont(font)
     SetTextProportional(0)
     SetTextScale(scale, scale)
     SetTextEdge(1, 0, 0, 0, 255)
     SetTextDropShadow(0, 0, 0, 0,255)
     SetTextOutline()
-	SetTextJustification(1)
+    SetTextJustification(1)
     SetTextEntry("STRING")
     AddTextComponentString(text)
     DrawText(x, y)
@@ -30,10 +38,12 @@ function getHeading(heading)
         return "S" -- South
     elseif (heading >= 225 and heading < 315) then
         return "E" -- East
+    else
+        return " "
     end
 end
 
-function time()
+function getTime()
     hour = GetClockHours()
     minute = GetClockMinutes()
     if hour <= 9 then
@@ -45,126 +55,172 @@ function time()
     return hour .. ":" .. minute
 end
 
-local zoneName = ""
-local streetName = ""
-local crossingRoad = ""
-local postal = ""
-local compass = ""
+
+if config.enableMoneyHud then
+    AddEventHandler("playerSpawned", function()
+        local selectedCharacter = exports["ND_Core"]:getCharacterInfo()
+        if not selectedCharacter then return end
+        cash = selectedCharacter.cash
+        bank = selectedCharacter.bank
+    end)
+
+    AddEventHandler("onResourceStart", function(resourceName)
+        if (GetCurrentResourceName() ~= resourceName) then
+        return
+        end
+        Citizen.Wait(3000)
+        local selectedCharacter = exports["ND_Core"]:getCharacterInfo()
+        if not selectedCharacter then return end
+        cash = selectedCharacter.cash
+        bank = selectedCharacter.bank
+    end)
+
+    AddEventHandler("characterChanged", function(selectedCharacter)
+        local selectedCharacter = exports["ND_Core"]:getCharacterInfo()
+        if not selectedCharacter then return end
+        cash = selectedCharacter.cash
+        bank = selectedCharacter.bank
+    end)
+
+    AddEventHandler("updateMoney", function(updatedCash, updatedBank)
+        cash = updatedCash
+        bank = updatedBank
+    end)
+end
+
+if config.enableAopStatus then
+    RegisterNetEvent("AndyHUD:ChangeAOP")
+    AddEventHandler("AndyHUD:ChangeAOP", function(aop)
+        aopText = aop
+    end)
+    TriggerEvent("chat:addSuggestion", "/aop", "Change the current area of play?", {{name="Area", help=""}})
+end
+
+if config.enablePriorityStatus then
+    TriggerEvent("chat:addSuggestion", "/prio-start", "Start a priority.")
+    TriggerEvent("chat:addSuggestion", "/prio-stop", "Stop an active priority.")
+    TriggerEvent("chat:addSuggestion", "/prio-cd", "Start a cooldown on priorities.", {
+        {name="Time", help="Time in minutes to start a cooldown"}
+    })
+    TriggerEvent("chat:addSuggestion", "/prio-join", "Join the current priority.")
+    TriggerEvent("chat:addSuggestion", "/prio-leave", "Leave the current priority.")
+
+    RegisterNetEvent("AndyHUD:returnPriority")
+    AddEventHandler("AndyHUD:returnPriority", function(priority)
+        priorityText = priority
+    end)
+end
+
+AddEventHandler("playerSpawned", function()
+    if config.enableAopStatus then
+        TriggerServerEvent("AndyHUD:getAop")
+    end
+    if config.enablePriorityStatus then
+        TriggerServerEvent("AndyHUD:getPriority")
+    end
+end)
+
+AddEventHandler("onResourceStart", function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+      return
+    end
+    Citizen.Wait(3000)
+    if config.enableAopStatus then
+        TriggerServerEvent("AndyHUD:getAop")
+    end
+    if config.enablePriorityStatus then
+        TriggerServerEvent("AndyHUD:getPriority")
+    end
+end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(100)
-        local ped = PlayerPedId()
+        Citizen.Wait(200)
+        ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
-        local zone = GetNameOfZone(coords.x, coords.y, coords.z)
         streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
         streetName = GetStreetNameFromHashKey(streetName)
         crossingRoad = GetStreetNameFromHashKey(crossingRoad)
-        zoneName = GetLabelText(zone)
+        zoneName = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
         if config.streetNames[streetName] then
             streetName = config.streetNames[streetName]
-        else
-            print("[^1WARNING^0] street name: ^3" .. streetName .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
         end
         if config.streetNames[crossingRoad] then
-            crossingRoad =  " ~c~/ " .. config.streetNames[crossingRoad]
-        elseif crossingRoad == "" then
-            crossingRoad = crossingRoad
-        else
-            print("[^1WARNING^0] crossing road: ^3" .. crossingRoad .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
-            crossingRoad =  " ~c~/ " .. crossingRoad
+            crossingRoad = config.streetNames[crossingRoad]
         end
-        if config.zoneNames[GetLabelText(zone)] then
-            zoneName = config.zoneNames[GetLabelText(zone)]
-        else
-            print("[^1WARNING^0] zone name: ^3" .. zoneName .. " ^0is not in the config, please contact ^5Andyyy#7666 ^0on discord so he can fix this!")
+        if config.zoneNames[GetLabelText(zoneName)] then
+            zoneName = config.zoneNames[GetLabelText(zoneName)]
         end
         if config.postalDisplay.enabled then
-            postal = exports[config.postalDisplay.resourceName]:getPostal()
+            postal = " (" .. exports[config.postalDisplay.resourceName]:getPostal() .. ")"
         end
-        compass = getHeading(GetEntityHeading(ped))
+        if getHeading(GetEntityHeading(ped)) then
+            compass = getHeading(GetEntityHeading(ped))
+        end
+        if crossingRoad ~= "" then
+            streetName = streetName .. " ~c~/ " .. crossingRoad
+        else
+            streetName = streetName
+        end
+        time = getTime()
+        hidden = IsHudHidden()
+        vehicle = GetVehiclePedIsIn(ped)
+        vehClass = GetVehicleClass(vehicle)
+        driver = GetPedInVehicleSeat(vehicle, -1)
+        local dead = IsPedDeadOrDying(ped, true)
+    end
+end)
+
+Citizen.CreateThread(function()
+    if config.enableSpeedometerMetric then
+        speedCalc = 3.6
+        speedText = "kmh"
+    else
+        speedCalc = 2.236936
+        speedText = "mph"
+    end
+    for _, vehicleName in pairs(config.electricVehiles) do
+        config.electricVehiles[GetHashKey(vehicleName)] = vehicleName
     end
 end)
 
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-        text("~c~" .. time() .. " ~s~" .. zoneName, config.timeDisplay.scale, config.timeDisplay.x, config.timeDisplay.y)
-        text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName .. crossingRoad, config.compassDisplay.scale, config.compassDisplay.x, config.compassDisplay.y)
-        if config.postalDisplay.enabled then
-            text("~s~Nearby Postal: ~c~" .. postal, config.postalDisplay.scale, config.postalDisplay.x, config.postalDisplay.y)
+        if config.enableMoneyHud then
+            text("💵", 0.885, 0.028, 0.35, 7)
+            text("💳", 0.885, 0.068, 0.35, 7)
+            text("~g~$~w~".. cash, 0.91, 0.03, 0.55, 7)
+            text("~b~$~w~".. bank, 0.91, 0.07, 0.55, 7)
+        end
+        if not hidden then
+            if config.enableAopStatus then
+                text("~s~AOP: ~c~" .. aopText, 0.168, 0.868, 0.40, 4)
+            end
+            if config.enablePriorityStatus then
+                text(priorityText, 0.168, 0.890, 0.40, 4)
+            end
+            if config.postalDisplay.enabled then
+                text("~s~Nearby Postal: ~c~" .. postal, 0.168, 0.912, 0.40, 4)
+            end
+            text("~c~" .. time .. " ~s~" .. zoneName, 0.168, 0.96, 0.40, 4)
+            text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName, 0.168, 0.932, 0.55, 4)
+        end
+        if vehicle ~= 0 and vehClass ~= 13 and driver and not dead then
+            DrawRect(0.139, 0.947, 0.035, 0.03, 0, 0, 0, 100)
+            text(tostring(math.ceil(GetEntitySpeed(vehicle) * speedCalc)), 0.124, 0.931, 0.5, 4)
+            text(speedText, 0.14, 0.94, 0.3, 4)
+            if config.enableFuelHUD then
+                local fuelLevel = (0.141 * GetVehicleFuelLevel(vehicle)) / 100 -- Fuel Value x Max Bar Width Show The Level Range Within The Bar
+                DrawRect(0.0855, 0.8, 0.141, 0.010 + 0.006, 40, 40, 40, 150)  -- Bar Background (Black)
+                if config.electricVehiles[GetEntityModel(vehicle)] then
+                    DrawRect(0.0855, 0.8, 0.141, 0.010, 20, 140, 255, 100)  -- Bar Background (lighter blue)
+                    DrawRect(0.0855 - (0.141 - fuelLevel) / 2, 0.8, fuelLevel, 0.010, 20, 140, 255, 255)  -- Current Fuel (Blue)
+                else
+                    DrawRect(0.0855, 0.8, 0.141, 0.010, 206, 145, 40, 100)  -- Bar Background (lighter yellow)
+                    DrawRect(0.0855 - (0.141 - fuelLevel) / 2, 0.8, fuelLevel, 0.010, 206, 145, 0, 255)  -- Current Fuel (Yellow)
+                end
+            end
         end
     end
 end)
-
--- Voice Range
-if config.voiceRangeDisplay.enabled then
-    local keybindUsed = false
-    local isTalking = false
-    local CurrentChosenDistance = 2
-    local CurrentDistanceValue = config.voiceRangeDisplay.ranges[CurrentChosenDistance].distance
-    local CurrentDistanceName = config.voiceRangeDisplay.ranges[CurrentChosenDistance].name
-
-    if config.voiceRangeDisplay.customKeybind then
-        RegisterCommand("+voiceDistance", function()
-            keybindUsed = true
-            keybindUsed = false
-        end, false)
-        RegisterCommand("-voiceDistance", function()
-            keybindUsed = false
-        end, false)
-        RegisterKeyMapping("+voiceDistance", "Change Voice Proximity", "keyboard", "z")
-    end
-
-    -- Check if player is speaking
-    if config.voiceRangeDisplay.makeHudSmallerWhileSpeaking then
-        Citizen.CreateThread(function()
-            while true do
-                Citizen.Wait(50)
-                if NetworkIsPlayerTalking(PlayerId()) then
-                    isTalking = true
-                else
-                    isTalking = false
-                end
-            end
-        end)
-    end
-
-    Citizen.CreateThread(function()
-        while true do
-            Citizen.Wait(0)
-
-            -- change voice
-            if IsControlJustPressed(0, config.voiceRangeDisplay.keybind) or keybindUsed then
-                if CurrentChosenDistance == #config.voiceRangeDisplay.ranges then
-                    CurrentChosenDistance = 1
-                else
-                    CurrentChosenDistance = CurrentChosenDistance + 1
-                end
-                CurrentDistanceValue = config.voiceRangeDisplay.ranges[CurrentChosenDistance].distance
-                CurrentDistanceName = config.voiceRangeDisplay.ranges[CurrentChosenDistance].name
-                if config.voiceRangeDisplay.changeSpeakingDistance then
-                    MumbleSetAudioInputDistance(CurrentDistanceValue)
-                end
-                if config.voiceRangeDisplay.changeHearingDistance then
-                    MumbleSetAudioOutputDistance(CurrentDistanceValue)
-                end
-            end
-
-            -- Blue circle
-            if config.voiceRangeDisplay.enableBlueCircle then
-                if IsControlPressed(1, config.voiceRangeDisplay.keybind) or keybindUsed then
-                    local pedCoords = GetEntityCoords(PlayerPedId())
-                    DrawMarker(1, pedCoords.x, pedCoords.y, pedCoords.z - 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, CurrentDistanceValue * 2.0, CurrentDistanceValue * 2.0, 1.0, 40, 140, 255, 150, false, false, 2, false, nil, nil, false)
-                end
-            end
-
-            -- HUD
-            if config.voiceRangeDisplay.makeHudSmallerWhileSpeaking and isTalking then
-                text(CurrentDistanceName, config.voiceRangeDisplay.scale / 1.2, config.voiceRangeDisplay.x, config.voiceRangeDisplay.y)
-            else
-                text(CurrentDistanceName, config.voiceRangeDisplay.scale, config.voiceRangeDisplay.x, config.voiceRangeDisplay.y)
-            end
-        end
-    end)
-end
