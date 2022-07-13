@@ -1,46 +1,44 @@
+-- For support join my discord: https://discord.gg/Z9Mxu72zZ6
+
 config = {
-    compassDisplay = {
-        scale = 0.55,
-        x = 0.182,
-        y = 0.932,
+    enableMoneyHud = true, -- curerntly only used with ND Framework if you use another fw then you can edit the client.lua
+    enableFuelHUD = true,
+    enableSpeedometerMetric = false,
+
+    enableAopStatus = true,
+    defaultAopStatus = "Sandy Shores",
+    changeAopAccess = { -- discord roles that can use the /aop command to change the aop. Usually only staff is allowed but if you want to allow everyone just put a "0".
+        "0"
+    },
+
+    enablePriorityStatus = true,
+    cooldownAfterPriorityStops = 5, -- in minutes, how long will the priority cooldown be after one stops until a new priority can be started.
+    cooldownAccess = { -- discord roles that can use the /prio-cd command to add a cooldown. Usually only staff is allowed but if you want to allow everyone just put a "0".
+        "0"
     },
 
     postalDisplay = {
         enabled = true,
         resourceName = "nearest-postal",
-        scale = 0.40,
-        x = 0.182,
-        y = 0.912,
     },
 
-    timeDisplay = { -- This includes the area display too.
-        scale = 0.40,
-        x = 0.182,
-        y = 0.96
-    },
-
-    -- Configure the voice range display.
-    voiceRangeDisplay = {
-        enabled = true, -- enable or disable the voice range.
-
-        x = 0.163,
-        y = 0.95,
-        scale = 0.30,
-    
-        keybind = 20, -- https://docs.fivem.net/docs/game-references/controls/
-        customKeybind = true, -- if you enable this then players can bind the key through their settings and not the keybind above.
-    
-        enableBlueCircle = true, -- this will enable the blue circle to show you the distance you're voice can reach.
-        makeHudSmallerWhileSpeaking = true, -- This will make the hud a little bit smaller when you're speaking.
-    
-        changeSpeakingDistance = true, -- This will change your voice distance based on what you've chosen. This is not recommended to be off unless you also want to turn off hearing and use this whole script only as a hud.
-        changeHearingDistance = false, -- This will change your hearing distance based on what you've chosen. This is recommended to be off.
-    
-        ranges = {
-            {distance = 2.0, name = "🔈"},
-            {distance = 10.0, name = "🔉"},
-            {distance = 30.0, name = "🔊"}
-        }
+    electricVehiles = { -- write the names of the electric vehicles here. This will turn the fuel bar to blue instead of yellow.
+        "Imorgon",
+        "Neon",
+        "Raiden",
+        "Cyclone",
+        "Voltic",
+        "Voltic2",
+        "Tezeract",
+        "Dilettante",
+        "Dilettante2",
+        "Airtug",
+        "Caddy",
+        "Caddy2",
+        "Caddy3",
+        "Surge",
+        "Khamelion",
+        "RC Bandito"
     },
 
     streetNames = { -- If you'd like to change the street names you can do that here.
