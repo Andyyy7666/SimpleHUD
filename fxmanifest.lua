@@ -1,21 +1,20 @@
-------------------------------------------------------------------------
-------------------------------------------------------------------------
---			DO NOT EDIT IF YOU DON'T KNOW WHAT YOU'RE DOING 		  --
---                                                                    --
---               Changes should be made in Config.lua                 --
---     							 									  --
---	   For support join my discord: https://discord.gg/Z9Mxu72zZ6	  --
-------------------------------------------------------------------------
-------------------------------------------------------------------------
+-- For support join my discord: https://discord.gg/Z9Mxu72zZ6
 
-version "1.0"
-description "DOJ Based HUD"
+version "2.0.0"
+description "SimpleHUD is a simple but good hud perfect for new servers."
 author "Andyyy#7666"
+lua54 "yes"
 
 fx_version "cerulean"
 game "gta5"
 
-client_scripts {
-    "config.lua",
-    "client.lua",
+shared_script "config.lua"
+client_script "client.lua"
+server_scripts {
+    "config_server.lua",
+    "server.lua"
+}
+
+exports {
+    "getAOP"
 }
