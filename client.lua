@@ -87,7 +87,7 @@ if config.enableMoneyHud then
 
     RegisterNetEvent("ND:updateMoney")
     AddEventHandler("ND:updateMoney", function(updatedCash, updatedBank)
-        cash = updatedCash,
+        cash = updatedCash
         bank = updatedBank
     end)
 end
