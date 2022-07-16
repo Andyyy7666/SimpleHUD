@@ -60,7 +60,7 @@ if config.enableMoneyHud then
     NDCore = exports["ND_Core"]:GetCoreObject()
 
     AddEventHandler("playerSpawned", function()
-        local selectedCharacter = NDCore.functions:getSelectedCharacter()
+        local selectedCharacter = NDCore.Functions.GetSelectedCharacter()
         if not selectedCharacter then return end
         cash = selectedCharacter.cash
         bank = selectedCharacter.bank
@@ -71,14 +71,23 @@ if config.enableMoneyHud then
         return
         end
         Citizen.Wait(3000)
-        local selectedCharacter = NDCore.functions:getSelectedCharacter()
+        local selectedCharacter = NDCore.Functions.GetSelectedCharacter()
         if not selectedCharacter then return end
         cash = selectedCharacter.cash
         bank = selectedCharacter.bank
     end)
 
+    RegisterNetEvent("ND:setCharacter")
+    AddEventHandler("ND:setCharacter", function(character)
+        local selectedCharacter = character
+        if not selectedCharacter then return end
+        cash = selectedCharacter.cash
+        bank = selectedCharacter.bank
+    end)
+
+    RegisterNetEvent("ND:updateMoney")
     AddEventHandler("ND:updateMoney", function(updatedCash, updatedBank)
-        cash = updatedCash
+        cash = updatedCash,
         bank = updatedBank
     end)
 end
