@@ -1,7 +1,7 @@
 -- For support join my discord: https://discord.gg/Z9Mxu72zZ6
 
 config = {
-    enableMoneyHud = true, -- curerntly only used with ND Framework if you use another fw then you can edit the client.lua
+    enableMoneyHud = true, -- curerntly only used with ND Framework if you use another fw then you can edit the client.lua, or if you're using the Currency_System then turn this off.
     enableFuelHUD = true,
     enableSpeedometerMetric = false,
 
