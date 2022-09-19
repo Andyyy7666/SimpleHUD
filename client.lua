@@ -84,6 +84,14 @@ if config.enableMoneyHud then
         cash = selectedCharacter.cash
         bank = selectedCharacter.bank
     end)
+    
+    RegisterNetEvent("ND:updateCharacter")
+    AddEventHandler("ND:updateCharacter", function(character)
+        local selectedCharacter = character
+        if not selectedCharacter then return end
+        cash = selectedCharacter.cash
+        bank = selectedCharacter.bank
+    end)
 
     RegisterNetEvent("ND:updateMoney")
     AddEventHandler("ND:updateMoney", function(updatedCash, updatedBank)
