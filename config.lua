@@ -284,7 +284,6 @@ config = {
         ["Harmony"] = "Harmony",
         ["N.O.O.S.E"] = "N.O.O.S.E",
         ["Paleto Forest"] = "Paleto Forest",
-        ["Bolingbroke Penitentiary"] = "Bolingbroke Penitentiary",
         ["Chiliad Mountain State Wilderness"] = "Chiliad Mountain State Wilderness",
         ["Vinewood"] = "Vinewood",
         ["Banning"] = "Banning",
