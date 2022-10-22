@@ -378,7 +378,6 @@ config = {
         ["Elysian Island"] = "Elysian Island",
         ["Paleto Cove"] = "Paleto Cove",
         ["West Vinewood"] = "West Vinewood",
-        ["Grand Senora Desert"] = "Grand Senora Desert",
         ["East Vinewood"] = "East Vinewood",
         ["Chumash"] = "Chumash",
         ["Cypress Flats"] = "Cypress Flats",
