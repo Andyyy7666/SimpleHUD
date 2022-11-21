@@ -169,6 +169,9 @@ end, false)
 TriggerEvent("chat:addSuggestion", "/postal", "Mark a postal on the map", {{name="postal", help="The postal code"}})
 TriggerEvent("chat:addSuggestion", "/p", "Mark a postal on the map", {{name="postal", help="The postal code"}})
 
+function getPostal()
+    return nearestPostal.code, nearestPostal
+end
 
 CreateThread(function()
     postals = json.decode(LoadResourceFile(GetCurrentResourceName(), "postals.json"))
