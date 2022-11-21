@@ -5,12 +5,13 @@ local aopText = ""
 local zoneName = ""
 local streetName = ""
 local crossingRoad = ""
-local postal = ""
+local nearestPostal = {}
 local compass = ""
 local time = ""
 local hidden = false
 local cash = ""
 local bank = ""
+local postals = {}
 
 function getAOP()
     return aopText
@@ -70,7 +71,7 @@ if config.enableMoneyHud then
         if (GetCurrentResourceName() ~= resourceName) then
         return
         end
-        Citizen.Wait(3000)
+        Wait(3000)
         local selectedCharacter = NDCore.Functions.GetSelectedCharacter()
         if not selectedCharacter then return end
         cash = selectedCharacter.cash
@@ -136,7 +137,7 @@ AddEventHandler("onResourceStart", function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
       return
     end
-    Citizen.Wait(3000)
+    Wait(3000)
     if config.enableAopStatus then
         TriggerServerEvent("AndyHUD:getAop")
     end
@@ -145,45 +146,41 @@ AddEventHandler("onResourceStart", function(resourceName)
     end
 end)
 
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(200)
-        ped = PlayerPedId()
-        local coords = GetEntityCoords(ped)
-        streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-        streetName = GetStreetNameFromHashKey(streetName)
-        crossingRoad = GetStreetNameFromHashKey(crossingRoad)
-        zoneName = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
-        if config.streetNames[streetName] then
-            streetName = config.streetNames[streetName]
+function markPostal(code)
+    for i = 1, #postals do
+        local postal = postals[i]
+        if postal.code == code then
+            SetNewWaypoint(postal.coords.x, postal.coords.y)
+            return
         end
-        if config.streetNames[crossingRoad] then
-            crossingRoad = config.streetNames[crossingRoad]
-        end
-        if config.zoneNames[GetLabelText(zoneName)] then
-            zoneName = config.zoneNames[GetLabelText(zoneName)]
-        end
-        if config.postalDisplay.enabled then
-            postal = " (" .. exports[config.postalDisplay.resourceName]:getPostal() .. ")"
-        end
-        if getHeading(GetEntityHeading(ped)) then
-            compass = getHeading(GetEntityHeading(ped))
-        end
-        if crossingRoad ~= "" then
-            streetName = streetName .. " ~c~/ " .. crossingRoad
-        else
-            streetName = streetName
-        end
-        time = getTime()
-        hidden = IsHudHidden()
-        vehicle = GetVehiclePedIsIn(ped)
-        vehClass = GetVehicleClass(vehicle)
-        driver = GetPedInVehicleSeat(vehicle, -1)
-        local dead = IsPedDeadOrDying(ped, true)
     end
-end)
+end
 
-Citizen.CreateThread(function()
+RegisterCommand("postal", function(source, args, rawCommand)
+    if not args[1] then return end
+    markPostal(args[1])
+end, false)
+
+RegisterCommand("p", function(source, args, rawCommand)
+    if not args[1] then return end
+    markPostal(args[1])
+end, false)
+
+TriggerEvent("chat:addSuggestion", "/postal", "Mark a postal on the map", {{name="postal", help="The postal code"}})
+TriggerEvent("chat:addSuggestion", "/p", "Mark a postal on the map", {{name="postal", help="The postal code"}})
+
+
+CreateThread(function()
+    postals = json.decode(LoadResourceFile(GetCurrentResourceName(), "postals.json"))
+    
+    for i = 1, #postals do
+        local postal = postals[i]
+        postals[i] = {
+            coords = vec(postal.x, postal.y),
+            code = postal.code
+        }
+    end
+
     if config.enableSpeedometerMetric then
         speedCalc = 3.6
         speedText = "kmh"
@@ -194,11 +191,64 @@ Citizen.CreateThread(function()
     for _, vehicleName in pairs(config.electricVehiles) do
         config.electricVehiles[GetHashKey(vehicleName)] = vehicleName
     end
+
+    nearestPostal = postals[1]
+    local nearestDist = 50000.0
+    while true do
+        ped = PlayerPedId()
+        pedCoords = GetEntityCoords(ped)
+        local coords = vec(pedCoords.x, pedCoords.y)
+
+        for i = 1, #postals do
+            local postal = postals[i]
+            local dist = #(coords - postal.coords)
+            if nearestDist > dist and postal.code ~= nearestPostal.code then
+                nearestPostal = postal
+            end
+        end
+        
+        nearestDist = #(coords - nearestPostal.coords)
+
+        streetName, crossingRoad = GetStreetNameAtCoord(pedCoords.x, pedCoords.y, pedCoords.z)
+        streetName = GetStreetNameFromHashKey(streetName)
+        crossingRoad = GetStreetNameFromHashKey(crossingRoad)
+        zoneName = GetLabelText(GetNameOfZone(pedCoords.x, pedCoords.y, pedCoords.z))
+        if config.streetNames[streetName] then
+            streetName = config.streetNames[streetName]
+        end
+        if config.streetNames[crossingRoad] then
+            crossingRoad = config.streetNames[crossingRoad]
+        end
+        if config.zoneNames[GetLabelText(zoneName)] then
+            zoneName = config.zoneNames[GetLabelText(zoneName)]
+        end
+        if getHeading(GetEntityHeading(ped)) then
+            compass = getHeading(GetEntityHeading(ped))
+        end
+        if crossingRoad ~= "" then
+            streetName = streetName .. " ~c~/ " .. crossingRoad
+        else
+            streetName = streetName
+        end
+        Wait(1000)
+    end
 end)
 
-Citizen.CreateThread(function()
+CreateThread(function()
+    Wait(500)
     while true do
-        Citizen.Wait(0)
+        Wait(300)
+        time = getTime()
+        hidden = IsHudHidden()
+        vehicle = GetVehiclePedIsIn(ped)
+        vehClass = GetVehicleClass(vehicle)
+        driver = GetPedInVehicleSeat(vehicle, -1)
+    end
+end)
+
+CreateThread(function()
+    while true do
+        Wait(0)
         if config.enableMoneyHud then
             text("💵", 0.885, 0.028, 0.35, 7)
             text("💳", 0.885, 0.068, 0.35, 7)
@@ -212,13 +262,13 @@ Citizen.CreateThread(function()
             if config.enablePriorityStatus then
                 text(priorityText, 0.168, 0.890, 0.40, 4)
             end
-            if config.postalDisplay.enabled then
-                text("~s~Nearby Postal: ~c~" .. postal, 0.168, 0.912, 0.40, 4)
+            if config.enablePostals and nearestPostal.code then
+                text("~s~Nearby Postal: ~c~(" .. nearestPostal.code .. ")", 0.168, 0.912, 0.40, 4)
             end
             text("~c~" .. time .. " ~s~" .. zoneName, 0.168, 0.96, 0.40, 4)
             text("~c~| ~s~" .. compass .. " ~c~| ~s~" .. streetName, 0.168, 0.932, 0.55, 4)
         end
-        if vehicle ~= 0 and vehClass ~= 13 and driver and not dead then
+        if vehicle ~= 0 and vehClass ~= 13 and driver then
             DrawRect(0.139, 0.947, 0.035, 0.03, 0, 0, 0, 100)
             text(tostring(math.ceil(GetEntitySpeed(vehicle) * speedCalc)), 0.124, 0.931, 0.5, 4)
             text(speedText, 0.14, 0.94, 0.3, 4)

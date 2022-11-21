@@ -8,13 +8,15 @@ lua54 "yes"
 fx_version "cerulean"
 game "gta5"
 
+file "postals.json"
 shared_script "config.lua"
-client_script "client.lua"
+client_script "src/client.lua"
 server_scripts {
     "config_server.lua",
-    "server.lua"
+    "src/server.lua"
 }
 
 exports {
-    "getAOP"
+    "getAOP",
+    "getPostal"
 }

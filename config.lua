@@ -4,6 +4,7 @@ config = {
     enableMoneyHud = true, -- curerntly only used with ND Framework if you use another fw then you can edit the client.lua, or if you're using the Currency_System then turn this off.
     enableFuelHUD = true,
     enableSpeedometerMetric = false,
+    enablePostals = true, -- paste your postal into postals.json file.
 
     enableAopStatus = true,
     defaultAopStatus = "Sandy Shores",
@@ -15,11 +16,6 @@ config = {
     cooldownAfterPriorityStops = 5, -- in minutes, how long will the priority cooldown be after one stops until a new priority can be started.
     cooldownAccess = { -- discord roles that can use the /prio-cd command to add a cooldown. Usually only staff is allowed but if you want to allow everyone just put a "0".
         "0"
-    },
-
-    postalDisplay = {
-        enabled = true,
-        resourceName = "nearest-postal",
     },
 
     electricVehiles = { -- write the names of the electric vehicles here. This will turn the fuel bar to blue instead of yellow.
