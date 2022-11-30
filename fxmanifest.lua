@@ -20,3 +20,7 @@ exports {
     "getAOP",
     "getPostal"
 }
+
+server_exports {
+    "getPostal"
+}
