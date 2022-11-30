@@ -13,6 +13,18 @@ local cash = ""
 local bank = ""
 local postals = {}
 
+if config.enableSpeedometerMetric then
+    speedCalc = 3.6
+    speedText = "kmh"
+else
+    speedCalc = 2.236936
+    speedText = "mph"
+end
+for _, vehicleName in pairs(config.electricVehiles) do
+    config.electricVehiles[GetHashKey(vehicleName)] = vehicleName
+end
+
+
 function getAOP()
     return aopText
 end
@@ -183,34 +195,26 @@ CreateThread(function()
             code = postal.code
         }
     end
+end)
 
-    if config.enableSpeedometerMetric then
-        speedCalc = 3.6
-        speedText = "kmh"
-    else
-        speedCalc = 2.236936
-        speedText = "mph"
-    end
-    for _, vehicleName in pairs(config.electricVehiles) do
-        config.electricVehiles[GetHashKey(vehicleName)] = vehicleName
-    end
-
-    nearestPostal = postals[1]
-    local nearestDist = 50000.0
+CreateThread(function()
+    local totalPostals = #postals
     while true do
         ped = PlayerPedId()
         pedCoords = GetEntityCoords(ped)
+        local nearestDist = nil
+        local nearestIndex = nil
         local coords = vec(pedCoords.x, pedCoords.y)
 
-        for i = 1, #postals do
-            local postal = postals[i]
-            local dist = #(coords - postal.coords)
-            if nearestDist > dist and postal.code ~= nearestPostal.code then
-                nearestPostal = postal
+        for i = 1, totalPostals do
+            local dist = #(coords - postals[i].coords)
+            if not nearestDist or dist < nearestDist then
+                nearestDist = dist
+                nearestIndex = i
             end
         end
-        
-        nearestDist = #(coords - nearestPostal.coords)
+
+        nearestPostal = postals[nearestIndex]
 
         streetName, crossingRoad = GetStreetNameAtCoord(pedCoords.x, pedCoords.y, pedCoords.z)
         streetName = GetStreetNameFromHashKey(streetName)
@@ -233,6 +237,7 @@ CreateThread(function()
         else
             streetName = streetName
         end
+
         Wait(1000)
     end
 end)
@@ -265,7 +270,7 @@ CreateThread(function()
             if config.enablePriorityStatus then
                 text(priorityText, 0.168, 0.890, 0.40, 4)
             end
-            if config.enablePostals and nearestPostal.code then
+            if config.enablePostals and nearestPostal and nearestPostal.code then
                 text("~s~Nearby Postal: ~c~(" .. nearestPostal.code .. ")", 0.168, 0.912, 0.40, 4)
             end
             text("~c~" .. time .. " ~s~" .. zoneName, 0.168, 0.96, 0.40, 4)
