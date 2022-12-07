@@ -24,3 +24,5 @@ exports {
 server_exports {
     "getPostal"
 }
+
+provide "nearest-postal"
