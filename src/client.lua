@@ -294,3 +294,14 @@ CreateThread(function()
         end
     end
 end)
+
+
+RegisterNetEvent("simplehud:toggle")
+AddEventHandler("simplehud:toggle", function()
+  if IsHudHidden() then
+    DisplayHud(true)
+  else
+    DisplayHud(false)
+  end
+end)
+
