@@ -213,6 +213,10 @@ if config.enablePriorityStatus then
     end, false)
 end
 
+RegisterCommand("hud", function(source)
+    TriggerClientEvent("simplehud:toggle", source)
+  end)  
+
 -- update and set aop.
 if config.enableAopStatus then
     local aop = config.defaultAopStatus
