@@ -9,11 +9,16 @@ fx_version "cerulean"
 game "gta5"
 
 file "postals.json"
-shared_script "config.lua"
+
 client_script "src/client.lua"
 server_scripts {
     "config_server.lua",
     "src/server.lua"
+}
+
+shared_scripts {
+    "@ND_Core/init.lua",
+    "config.lua"
 }
 
 exports {
