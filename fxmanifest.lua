@@ -17,7 +17,6 @@ server_scripts {
 }
 
 shared_scripts {
-    "@ND_Core/init.lua",
     "config.lua"
 }
 
