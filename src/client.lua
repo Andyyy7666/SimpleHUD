@@ -1,5 +1,10 @@
 -- For support join my discord: https://discord.gg/Z9Mxu72zZ6
 
+local NDCore = nil
+if GetResourceState("ND_Core") == "started" then
+    NDCore = exports["ND_Core"]
+end
+
 local priorityText = ""
 local aopText = ""
 local zoneName = ""
@@ -69,7 +74,7 @@ function getTime()
 end
 
 
-if config.enableMoneyHud then
+if config.enableMoneyHud and NDCore then
     AddEventHandler("playerSpawned", function()
         local selectedCharacter = NDCore.getPlayer()
         if not selectedCharacter then return end
@@ -95,7 +100,7 @@ if config.enableMoneyHud then
         cash = selectedCharacter.cash
         bank = selectedCharacter.bank
     end)
-    
+
     RegisterNetEvent("ND:updateCharacter")
     AddEventHandler("ND:updateCharacter", function(character)
         local selectedCharacter = character
@@ -255,7 +260,7 @@ end)
 CreateThread(function()
     while true do
         Wait(0)
-        if config.enableMoneyHud then
+        if config.enableMoneyHud and NDCore then
             text("💵", 0.885, 0.028, 0.35, 7)
             text("💳", 0.885, 0.068, 0.35, 7)
             text("~g~$~w~".. cash, 0.91, 0.03, 0.55, 7)
