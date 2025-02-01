@@ -224,8 +224,8 @@ CreateThread(function()
         if config.streetNames[crossingRoad] then
             crossingRoad = config.streetNames[crossingRoad]
         end
-        if config.zoneNames[GetLabelText(zoneName)] then
-            zoneName = config.zoneNames[GetLabelText(zoneName)]
+        if config.zoneNames[zoneName] then
+            zoneName = config.zoneNames[zoneName]
         end
         if getHeading(GetEntityHeading(ped)) then
             compass = getHeading(GetEntityHeading(ped))
